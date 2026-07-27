@@ -1,0 +1,1426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Legislation Dossier</title>
+</head>
+<body>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+  /* Scoped Root Variables */
+  .legislation-scope {
+    --primary: #002366;
+    --primary-hover: #001540;
+    --bg-color: #ffffff;
+    --input-bg: #f3f4f6;
+    --input-hover: #e5e7eb;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --radius: 6px;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-main);
+  }
+
+  .legislation-scope * {
+    box-sizing: border-box;
+  }
+
+  /* Main Container */
+  .legislation-form-container {
+    width: 100%;
+    max-width: 730px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 20px;
+    /* WEBFLOW FIX: Ensure this container never overflows its parent */
+    overflow: hidden;
+    position: relative;
+  }
+
+  .legislation-form-title {
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
+  .legislation-main-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  /* Grid Layout */
+  .legislation-forms-wrapper {
+    display: grid;
+    /* WEBFLOW FIX: Strict columns that cannot grow beyond 50% */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 60px;
+    align-items: start;
+    width: 100%;
+  }
+
+  .legislation-form-section {
+    display: flex;
+    flex-direction: column;
+    /* WEBFLOW FIX: Ensure flex children don't push width */
+    min-width: 0;
+    width: 100%;
+  }
+
+  .legislation-section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--input-bg);
+    margin-top: 0;
+  }
+
+  .legislation-form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .legislation-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .legislation-input-label {
+    font-size: 14px;
+    color: var(--text-main);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+  }
+
+  .legislation-input-label::before {
+    content: attr(data-num);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  /* Input Styling */
+  .legislation-select-input,
+  .legislation-text-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+    background-color: var(--input-bg);
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background-image: none !important;
+    appearance: none;
+    outline: none;
+    height: auto;
+  }
+
+  .legislation-select-input {
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23374151' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    cursor: pointer;
+  }
+
+  .legislation-select-input:focus,
+  .legislation-text-input:focus {
+    background-color: #ffffff;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px rgba(0, 35, 102, 0.1);
+  }
+
+  .legislation-text-input:disabled,
+  .legislation-select-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #f9fafb;
+  }
+
+  /* Options Grid */
+  .legislation-options-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .legislation-option {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    cursor: pointer;
+    background: var(--input-bg);
+    position: relative;
+    transition: all 0.2s ease;
+    gap: 8px;
+    min-height: 44px;
+  }
+
+  .legislation-option:hover {
+    background-color: var(--input-hover);
+  }
+
+  .legislation-option input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .legislation-option-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.2;
+  }
+
+  .legislation-option-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    opacity: 0.5;
+    filter: grayscale(100%);
+  }
+
+  .legislation-option:has(input:checked) {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .legislation-option input:checked~.legislation-option-label {
+    color: #ffffff;
+  }
+
+  .legislation-option input:checked~.legislation-option-label .legislation-option-icon {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+  }
+
+  /* Buttons */
+  .legislation-submit-btn {
+    background: var(--primary);
+    color: #ffffff;
+    border: none;
+    padding: 14px;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.2s ease;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .legislation-submit-btn:hover:not(:disabled) {
+    background: var(--primary-hover);
+  }
+
+  .legislation-submit-btn:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+  }
+
+  /* Dropdowns */
+  .legislation-autocomplete-field {
+    position: relative;
+    width: 100%;
+  }
+
+  .legislation-custom-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    border-radius: var(--radius);
+    max-height: 240px;
+    overflow-y: auto;
+    display: none;
+    z-index: 100;
+    margin-top: 4px;
+  }
+
+  .legislation-custom-dropdown-item {
+    padding: 10px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    color: var(--text-main);
+  }
+
+  .legislation-custom-dropdown-item:hover {
+    background: #f9fafb;
+    color: var(--primary);
+  }
+
+  /* Results */
+  .legislation-api-results {
+    margin-top: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+    /* WEBFLOW FIX: Ensure results container stays within parent */
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .legislation-result-item {
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+
+    /* WEBFLOW FIX: Aggressive word breaking to prevent expansion */
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    /* Breaks URLs and long strings anywhere */
+    word-break: break-word;
+    white-space: normal;
+  }
+
+  .legislation-bill-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text-main);
+  }
+
+  .legislation-bill-number {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .legislation-bill-description {
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .legislation-bill-link {
+    font-size: 13px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    /* Ensure links wrap */
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s;
+    z-index: 99999;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .toast.toast-success {
+    background: #059669;
+  }
+
+  .toast.toast-error {
+    background: #dc2626;
+  }
+
+  @media (max-width: 900px) {
+    .legislation-forms-wrapper {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .legislation-form-container {
+      padding: 15px;
+      margin: 20px auto;
+    }
+  }
+</style>
+
+<div class="legislation-scope">
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div class="legislation-form legislation-form-container">
+    <div class="legislation-form-title">
+      <h1 class="legislation-main-title">Legislation Topics</h1>
+    </div>
+
+    <div class="legislation-forms-wrapper">
+
+      <!-- Left Form -->
+      <div class="legislation-form-section">
+        <h2 class="legislation-section-title">Dossier Generation</h2>
+
+        <form id="legislationForm1" class="legislation-form-content">
+          <div class="legislation-form-field">
+            <label class="legislation-input-label" data-num="1">Level</label>
+            <select name="level" class="legislation-select-input" required disabled>
+              <option value="">Select level...</option>
+              <option value="national">National</option>
+              <option value="state" selected>State</option>
+              <option value="local">Local</option>
+            </select>
+          </div>
+
+          <div class="legislation-form-field">
+            <label class="legislation-input-label" data-num="2">State</label>
+            <select name="state" id="legislationStateSelect" class="legislation-select-input" required>
+              <option value="Alabama">Alabama</option>
+              <option value="Alaska">Alaska</option>
+              <option value="Arizona">Arizona</option>
+              <option value="Arkansas">Arkansas</option>
+              <option value="California">California</option>
+              <option value="Colorado">Colorado</option>
+              <option value="Connecticut">Connecticut</option>
+              <option value="Delaware">Delaware</option>
+              <option value="Florida">Florida</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Hawaii">Hawaii</option>
+              <option value="Idaho">Idaho</option>
+              <option value="Illinois">Illinois</option>
+              <option value="Indiana">Indiana</option>
+              <option value="Iowa">Iowa</option>
+              <option value="Kansas">Kansas</option>
+              <option value="Kentucky">Kentucky</option>
+              <option value="Louisiana">Louisiana</option>
+              <option value="Maine">Maine</option>
+              <option value="Maryland">Maryland</option>
+              <option value="Massachusetts">Massachusetts</option>
+              <option value="Michigan">Michigan</option>
+              <option value="Minnesota">Minnesota</option>
+              <option value="Mississippi">Mississippi</option>
+              <option value="Missouri">Missouri</option>
+              <option value="Montana">Montana</option>
+              <option value="Nebraska">Nebraska</option>
+              <option value="Nevada">Nevada</option>
+              <option value="New Hampshire">New Hampshire</option>
+              <option value="New Jersey">New Jersey</option>
+              <option value="New Mexico">New Mexico</option>
+              <option value="New York">New York</option>
+              <option value="North Carolina">North Carolina</option>
+              <option value="North Dakota">North Dakota</option>
+              <option value="Ohio">Ohio</option>
+              <option value="Oklahoma">Oklahoma</option>
+              <option value="Oregon">Oregon</option>
+              <option value="Pennsylvania">Pennsylvania</option>
+              <option value="Rhode Island">Rhode Island</option>
+              <option value="South Carolina">South Carolina</option>
+              <option value="South Dakota">South Dakota</option>
+              <option value="Tennessee">Tennessee</option>
+              <option value="Texas">Texas</option>
+              <option value="Utah">Utah</option>
+              <option value="Vermont">Vermont</option>
+              <option value="Virginia">Virginia</option>
+              <option value="Washington">Washington</option>
+              <option value="West Virginia">West Virginia</option>
+              <option value="Wisconsin" selected>Wisconsin</option>
+              <option value="Wyoming">Wyoming</option>
+            </select>
+          </div>
+
+
+          <div class="legislation-form-field">
+            <label class="legislation-input-label" data-num="3">Issue</label>
+            <div class="legislation-autocomplete-field">
+              <input type="text" id="legislationIssueDropdown" name="issue" placeholder="Select an issue..."
+                class="legislation-text-input" autocomplete="off" required readonly>
+              <div id="legislationIssueDropdownMenu" class="legislation-custom-dropdown"></div>
+            </div>
+          </div>
+
+          <div class="legislation-form-field">
+            <label class="legislation-input-label" data-num="4">Analysis type</label>
+            <div class="legislation-options-grid">
+              <label class="legislation-option">
+                <input type="checkbox" name="options" value="Overview" id="legislationOpt1">
+                <span class="legislation-option-label"><img
+                    src="https://cdn.prod.website-files.com/6909fb37ec7bf540bb37dd4b/6913038ee1ae52e81d6e10c3_overview.png"
+                    class="legislation-option-icon">Overview</span>
+              </label>
+              <label class="legislation-option">
+                <input type="checkbox" name="options" value="Action Plan" id="legislationOpt2">
+                <span class="legislation-option-label"><img
+                    src="https://cdn.prod.website-files.com/6909fb37ec7bf540bb37dd4b/6913038ef0c607ef933d5042_plan.png"
+                    class="legislation-option-icon">Action Plan</span>
+              </label>
+              <label class="legislation-option">
+                <input type="checkbox" name="options" value="People/Leader" id="legislationOpt3">
+                <span class="legislation-option-label"><img
+                    src="https://cdn.prod.website-files.com/6909fb37ec7bf540bb37dd4b/6913038e7179b7888cc5d3f7_people-leader.png"
+                    class="legislation-option-icon">Leaders</span>
+              </label>
+              <label class="legislation-option">
+                <input type="checkbox" name="options" value="Executive Summary" id="legislationOpt4">
+                <span class="legislation-option-label"><img
+                    src="https://cdn.prod.website-files.com/6909fb37ec7bf540bb37dd4b/6913038e883faf8c7b91f931_summary.png"
+                    class="legislation-option-icon">Summary</span>
+              </label>
+              <label class="legislation-option">
+                <input type="checkbox" name="options" value="Economic Impact" id="legislationOpt5">
+                <span class="legislation-option-label"><img
+                    src="https://cdn.prod.website-files.com/6909fb37ec7bf540bb37dd4b/6913038e07e7dc652126f622_news.png"
+                    class="legislation-option-icon">News</span>
+              </label>
+              <label class="legislation-option">
+                <input type="checkbox" name="options" value="Other States" id="legislationOpt6">
+                <span class="legislation-option-label"><img
+                    src="https://cdn.prod.website-files.com/6909fb37ec7bf540bb37dd4b/6914699d7ff066ec9c5094fb_other%20states.png"
+                    class="legislation-option-icon">Others</span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="legislation-submit-btn">Generate Dossier</button>
+          <div id="legislationResponse1" style="display: none;" class="legislation-result-item"></div>
+        </form>
+      </div>
+
+      <!-- Right Form -->
+      <div class="legislation-form-section">
+        <h2 class="legislation-section-title">Stack at a Glance</h2>
+
+        <form id="legislationForm2" class="legislation-form-content">
+          <div class="legislation-form-field">
+            <label class="legislation-input-label" data-num="1">State</label>
+            <select name="state" id="legislationForm2StateSelect" class="legislation-select-input" required>
+              <option value="Alabama">Alabama</option>
+              <option value="Alaska">Alaska</option>
+              <option value="Arizona">Arizona</option>
+              <option value="Arkansas">Arkansas</option>
+              <option value="California">California</option>
+              <option value="Colorado">Colorado</option>
+              <option value="Connecticut">Connecticut</option>
+              <option value="Delaware">Delaware</option>
+              <option value="Florida">Florida</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Hawaii">Hawaii</option>
+              <option value="Idaho">Idaho</option>
+              <option value="Illinois">Illinois</option>
+              <option value="Indiana">Indiana</option>
+              <option value="Iowa">Iowa</option>
+              <option value="Kansas">Kansas</option>
+              <option value="Kentucky">Kentucky</option>
+              <option value="Louisiana">Louisiana</option>
+              <option value="Maine">Maine</option>
+              <option value="Maryland">Maryland</option>
+              <option value="Massachusetts">Massachusetts</option>
+              <option value="Michigan">Michigan</option>
+              <option value="Minnesota">Minnesota</option>
+              <option value="Mississippi">Mississippi</option>
+              <option value="Missouri">Missouri</option>
+              <option value="Montana">Montana</option>
+              <option value="Nebraska">Nebraska</option>
+              <option value="Nevada">Nevada</option>
+              <option value="New Hampshire">New Hampshire</option>
+              <option value="New Jersey">New Jersey</option>
+              <option value="New Mexico">New Mexico</option>
+              <option value="New York">New York</option>
+              <option value="North Carolina">North Carolina</option>
+              <option value="North Dakota">North Dakota</option>
+              <option value="Ohio">Ohio</option>
+              <option value="Oklahoma">Oklahoma</option>
+              <option value="Oregon">Oregon</option>
+              <option value="Pennsylvania">Pennsylvania</option>
+              <option value="Rhode Island">Rhode Island</option>
+              <option value="South Carolina">South Carolina</option>
+              <option value="South Dakota">South Dakota</option>
+              <option value="Tennessee">Tennessee</option>
+              <option value="Texas">Texas</option>
+              <option value="Utah">Utah</option>
+              <option value="Vermont">Vermont</option>
+              <option value="Virginia">Virginia</option>
+              <option value="Washington">Washington</option>
+              <option value="West Virginia">West Virginia</option>
+              <option value="Wisconsin" selected>Wisconsin</option>
+              <option value="Wyoming">Wyoming</option>
+            </select>
+          </div>
+
+          <div class="legislation-form-field">
+            <label class="legislation-input-label" data-num="2">County</label>
+            <div class="legislation-autocomplete-field">
+              <input type="text" id="legislationCountyDropdown" name="county" placeholder="Select a county..."
+                class="legislation-text-input" autocomplete="off" required readonly>
+              <div id="legislationCountyDropdownMenu" class="legislation-custom-dropdown"></div>
+            </div>
+          </div>
+
+          <div class="legislation-form-field">
+            <label class="legislation-input-label" data-num="3">Issue</label>
+            <div class="legislation-autocomplete-field">
+              <input type="text" id="legislationForm2IssueDropdown" name="issue" placeholder="Select a county first..."
+                class="legislation-text-input" autocomplete="off" required readonly disabled>
+              <div id="legislationForm2IssueDropdownMenu" class="legislation-custom-dropdown"></div>
+            </div>
+          </div>
+
+          <button type="submit" class="legislation-submit-btn">Search Legislation</button>
+
+          <div id="legislationApiResults" class="legislation-api-results">
+            <div id="legislationResultsContent"></div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const toastEl = document.getElementById('toast');
+  const TOAST_DURATION = 2800;
+  let toastTimer = null;
+  const toastQueue = [];
+  let toastVisible = false;
+
+  function dequeueToast() {
+    if (toastQueue.length === 0) {
+      toastVisible = false;
+      return;
+    }
+    const { message, type } = toastQueue.shift();
+    showToast(message, type, true);
+  }
+
+  function showToast(message, type = 'info', isDequeued = false) {
+    if (!toastEl) return;
+    if (!isDequeued && toastVisible) {
+      toastQueue.push({ message, type });
+      return;
+    }
+    toastVisible = true;
+    toastEl.classList.remove('toast-success', 'toast-error');
+    if (type === 'success') toastEl.classList.add('toast-success');
+    if (type === 'error') toastEl.classList.add('toast-error');
+    toastEl.innerHTML = message;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toastEl.classList.remove('show');
+      setTimeout(dequeueToast, 300);
+    }, TOAST_DURATION);
+  }
+
+  // LOAD DATA
+  // corpus_of_issues_states_grouped.txt: { StateName: ["Issue1", "Issue2", ...] }
+  // Replace CORPUS_URL with the actual CDN URL after upload
+  const corpusIssuesUrl = "https://cdn.prod.website-files.com/6909fb37ec7bf540bb37dd4b/69afe9416a9da2ffc990bd48_corpus_of_issues_states_grouped.txt";
+  const countyDataUrl = "https://cdn.prod.website-files.com/6909fb37ec7bf540bb37dd4b/691371a117532052cba1d714_county_with_issues_data.txt";
+  const allCountiesUrl = "https://cdn.prod.website-files.com/6909fb37ec7bf540bb37dd4b/69789004aa7f10cf11463cd4_county_with_state_mapping.txt";
+
+  let stateIssuesData = {}; // { State: ["Issue", ...] } — from corpus
+  let countyIssuesData = {};
+  let allCountiesMap = {}; // { StateName: ["County1", "County2", ...] }
+
+  function initializeDropdownLogic(inputId, menuId, dataList = null) {
+    const input = document.getElementById(inputId);
+    const menu = document.getElementById(menuId);
+    if (!input || !menu) return;
+
+    let filtered = [];
+
+    const closeDropdown = () => {
+      menu.style.display = 'none';
+      menu.innerHTML = '';
+    };
+
+    const selectItem = (value) => {
+      input.value = value;
+      closeDropdown();
+    };
+
+    const renderDropdown = (filterValue = '') => {
+      const normalized = filterValue.trim().toLowerCase();
+      const sourceData = dataList ? dataList : [];
+      filtered = sourceData.filter(item => item.toLowerCase().includes(normalized));
+      menu.innerHTML = '';
+
+      if (!filtered.length) {
+        closeDropdown();
+        return;
+      }
+      menu.style.display = 'block';
+
+      filtered.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = 'legislation-custom-dropdown-item';
+        div.textContent = item;
+        div.onmousedown = (e) => {
+          e.preventDefault();
+          selectItem(item);
+        };
+        menu.appendChild(div);
+      });
+    };
+
+    input.onclick = () => { input.removeAttribute('readonly'); renderDropdown(input.value); };
+    input.oninput = () => { renderDropdown(input.value); };
+    input.onfocus = () => { input.removeAttribute('readonly'); renderDropdown(input.value); };
+    input.onblur = () => { setTimeout(() => input.setAttribute('readonly', 'readonly'), 200); };
+  }
+
+  // countyListOverride: optional array – when provided, use it instead of countyIssuesData keys.
+  // This is called both on page load and whenever the state dropdown changes.
+  function initializeForm2Logic(countyListOverride) {
+    const countyInput = document.getElementById('legislationCountyDropdown');
+    const issueInput = document.getElementById('legislationForm2IssueDropdown');
+    const countyMenu = document.getElementById('legislationCountyDropdownMenu');
+    const counties = countyListOverride ? countyListOverride : Object.keys(countyIssuesData).sort();
+
+    let filtered = [];
+
+    const close = () => { countyMenu.style.display = 'none'; countyMenu.innerHTML = ''; };
+    const selectCounty = (val) => {
+      countyInput.value = val;
+      close();
+      const issues = countyIssuesData[val] || [];
+      if (issues.length > 0) {
+        issueInput.disabled = false;
+        issueInput.placeholder = 'Select an issue...';
+        issueInput.value = '';
+        const newIssueInput = issueInput.cloneNode(true);
+        issueInput.parentNode.replaceChild(newIssueInput, issueInput);
+        initializeDropdownLogic('legislationForm2IssueDropdown', 'legislationForm2IssueDropdownMenu', issues);
+      } else {
+        issueInput.disabled = true;
+        issueInput.placeholder = 'No issues found for this county';
+        issueInput.value = '';
+      }
+    };
+
+    const render = (filter = '') => {
+      const norm = filter.trim().toLowerCase();
+      filtered = counties.filter(c => c.toLowerCase().includes(norm));
+      countyMenu.innerHTML = '';
+      if (!filtered.length) { close(); return; }
+      countyMenu.style.display = 'block';
+      filtered.forEach(c => {
+        const d = document.createElement('div');
+        d.className = 'legislation-custom-dropdown-item';
+        d.textContent = c;
+        d.onmousedown = (e) => { e.preventDefault(); selectCounty(c); };
+        countyMenu.appendChild(d);
+      });
+    };
+
+    // Replace handlers each time so stale closures over old county lists are dropped
+    countyInput.onclick = () => { countyInput.removeAttribute('readonly'); render(countyInput.value); };
+    countyInput.oninput = () => { render(countyInput.value); };
+    countyInput.onfocus = () => { countyInput.removeAttribute('readonly'); render(countyInput.value); };
+    countyInput.onblur = () => { setTimeout(() => countyInput.setAttribute('readonly', 'readonly'), 200); };
+  }
+
+  // Helper: refresh Form 1 issue dropdown for the given state
+  function refreshForm1Issues(state) {
+    const issues = stateIssuesData[state] || [];
+    const issueInput = document.getElementById('legislationIssueDropdown');
+    if (issueInput) {
+      issueInput.value = '';
+      issueInput.placeholder = issues.length ? 'Select an issue...' : 'No issues for this state';
+    }
+    initializeDropdownLogic('legislationIssueDropdown', 'legislationIssueDropdownMenu', issues.length ? issues : null);
+  }
+
+  Promise.all([
+    fetch(corpusIssuesUrl).then(r => r.ok ? r.json() : {}).catch(() => ({})),
+    fetch(countyDataUrl).then(response => response.json()),
+    fetch(allCountiesUrl).then(r => r.ok ? r.json() : []).catch(() => [])
+  ])
+    .then(([corpusData, countyData, allCounties]) => {
+      stateIssuesData = corpusData;
+      countyIssuesData = countyData;
+
+      // Build state → counties map
+      allCountiesMap = {};
+      if (Array.isArray(allCounties)) {
+        allCounties.forEach(item => {
+          if (item.State && item.County) {
+            if (!allCountiesMap[item.State]) allCountiesMap[item.State] = [];
+            allCountiesMap[item.State].push(item.County);
+          }
+        });
+        Object.keys(allCountiesMap).forEach(s => allCountiesMap[s].sort());
+      }
+
+      // Initialize Form 1 issue dropdown for the initially selected state
+      const form1State = document.getElementById('legislationStateSelect').value;
+      refreshForm1Issues(form1State);
+
+      // When Form 1 state changes, refresh its issue dropdown
+      document.getElementById('legislationStateSelect').addEventListener('change', function () {
+        refreshForm1Issues(this.value);
+      });
+
+      // Initialize Form 2 county/issue dropdowns
+      const form2State = document.getElementById('legislationForm2StateSelect').value;
+      const initialCounties = form2State === 'Wisconsin'
+        ? Object.keys(countyIssuesData).sort()
+        : (allCountiesMap[form2State] || []);
+      initializeForm2Logic(initialCounties);
+
+      // When Form 2 state changes, rebuild county dropdown
+      document.getElementById('legislationForm2StateSelect').addEventListener('change', function () {
+        const state = this.value;
+        const countyInput = document.getElementById('legislationCountyDropdown');
+        const issueInput = document.getElementById('legislationForm2IssueDropdown');
+        countyInput.value = '';
+        issueInput.value = '';
+        issueInput.disabled = true;
+        issueInput.placeholder = 'Select a county first...';
+
+        const newCounties = state === 'Wisconsin'
+          ? Object.keys(countyIssuesData).sort()
+          : (allCountiesMap[state] || []);
+        initializeForm2Logic(newCounties);
+      });
+    })
+    .catch(error => {
+      console.error("Failed to load issues data:", error);
+      showToast("Warning: Issue data failed to load.", "error");
+    });
+
+  document.addEventListener('click', (e) => {
+    const dropdowns = document.querySelectorAll('.legislation-custom-dropdown');
+    dropdowns.forEach(dropdown => {
+      const parent = dropdown.parentElement;
+      if (parent && !parent.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+  });
+
+  document.getElementById('legislationForm1').onsubmit = (e) => {
+    e.preventDefault();
+    console.log("Form 1 Submitted");
+  };
+
+  document.getElementById('legislationForm2').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    const resDiv = document.getElementById('legislationResultsContent');
+
+    btn.disabled = true;
+    btn.textContent = 'Searching...';
+    resDiv.innerHTML = '';
+
+    const fd = new FormData(e.target);
+    const input = {
+      "user_input": `${fd.get('issue')}`,
+      "county": fd.get('county') || ""
+    };
+
+    try {
+      const req = await fetch('https://eprid4tv0b.execute-api.eu-west-1.amazonaws.com/final/legislation-topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input)
+      });
+
+      const raw = await req.json();
+      const result = raw.body ? JSON.parse(raw.body) : raw;
+      const data = result.data;
+
+      if (data && data.results && data.results.length) {
+        const summary = document.createElement('div');
+        summary.className = 'legislation-result-item';
+        summary.innerHTML = `<div class="legislation-bill-title">${data.results.length} bills found</div>`;
+        resDiv.appendChild(summary);
+
+        data.results.forEach(bill => {
+          const d = document.createElement('div');
+          d.className = 'legislation-result-item';
+          d.innerHTML = `
+                     <div class="legislation-bill-title">${bill.title}</div>
+                     <div class="legislation-bill-number">${bill.bill_number} • ${bill.state}</div>
+                     <div class="legislation-bill-description">${bill.description ? bill.description.substring(0, 60) + '...' : ''}</div>
+                     <a href="${bill.url}" target="_blank" class="legislation-bill-link">View Bill</a>
+                   `;
+          resDiv.appendChild(d);
+        });
+      } else {
+        resDiv.innerHTML = '<div class="legislation-result-item">No results found</div>';
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Error fetching data', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Search Legislation';
+    }
+  };
+</script>
+
+<!-- ==== Webflow-runtime shim (added for standalone deploy) ==== -->
+<script>
+  // These integration scripts were written to run inside Webflow, which provides
+  // a global `Webflow` ready-queue. Outside Webflow we emulate it: run each pushed
+  // callback once the DOM is ready.
+  (function () {
+    var needsShim = !window.Webflow || typeof window.Webflow.push !== "function"
+      || window.Webflow.push === Array.prototype.push;
+    if (needsShim) {
+      window.Webflow = {
+        push: function (fn) {
+          if (document.readyState !== "loading") { fn(); }
+          else { document.addEventListener("DOMContentLoaded", fn); }
+        },
+      };
+    }
+  })();
+</script>
+<!-- ==== Custom-code integration (Webflow-specific parts translated for standalone) ==== -->
+<script>
+var Webflow = Webflow || [];
+Webflow.push(function () {
+
+    // -----------------------------------------------------------------
+    // API CONFIGURATION
+    // -----------------------------------------------------------------
+    const API_URL = "https://gdi9c82r4j.execute-api.eu-west-1.amazonaws.com/moderate-test";
+    const STATUS_URL = "https://gdi9c82r4j.execute-api.eu-west-1.amazonaws.com/getitemstatus";
+    const POLL_INTERVAL = 5000; // 5 seconds
+    const MAX_POLL_ATTEMPTS = 100;
+    const DEFAULT_PROCESS = 'LEGISLATION'; // Legislation Dossier Generation
+    const REQUEST_TIMEOUT = 600000; // 10 minutes
+    
+    let userId = null;
+    let sessionId = null;
+    let pollingIntervalId = null;
+    let pollAttempts = 0;
+
+    // -----------------------------------------------------------------
+    // UTILITY: Generate User ID
+    // -----------------------------------------------------------------
+    function generateUserId() {
+        try {
+            const memberData = JSON.parse(localStorage.getItem("_ms-mem"));
+            if (memberData && memberData.id) {
+                return memberData.id;
+            }
+        } catch (error) {
+            console.error("Error retrieving user_id from localStorage:", error);
+        }
+        return null;
+    }
+
+    // -----------------------------------------------------------------
+    // UTILITY: Generate Session ID
+    // -----------------------------------------------------------------
+    function generateSessionId(){
+        try {
+            if (window?.crypto?.randomUUID) {
+                return `session-${window.crypto.randomUUID()}`;
+            }
+
+            if (window?.crypto?.getRandomValues) {
+                const buffer = new Uint32Array(4);
+                window.crypto.getRandomValues(buffer);
+                const token = Array.from(buffer)
+                    .map(num => num.toString(16).padStart(8, '0'))
+                    .join('');
+                return `session-${token}`;
+            }
+        } catch (error) {
+            console.error("Error generating session_id:", error);
+        }
+
+        const timestamp = Date.now().toString(36);
+        const randomPart = Math.random().toString(36).slice(2, 11);
+        return `session-${timestamp}-${randomPart}`;
+    }
+
+    // Initialize User ID and Session ID
+    userId = generateUserId();
+    // --- Standalone translation: persistent anonymous user id fallback ---
+    // (Original relied on a Memberstack member session that does not exist here.)
+    if (!userId) {
+        try {
+            userId = localStorage.getItem("xavier_anon_user_id");
+            if (!userId) {
+                userId = "anon-" + ((window.crypto && window.crypto.randomUUID)
+                    ? window.crypto.randomUUID()
+                    : (Date.now().toString(36) + Math.random().toString(36).slice(2)));
+                localStorage.setItem("xavier_anon_user_id", userId);
+            }
+        } catch (e) {
+            userId = "anon-" + Date.now().toString(36);
+        }
+    }
+    console.log('[Init] Effective User ID:', userId);
+
+    sessionId = generateSessionId();
+    console.log('[Init] User ID:', userId);
+    console.log('[Init] Session ID:', sessionId);
+
+    // -----------------------------------------------------------------
+    // SUBMIT JOB TO API
+    // -----------------------------------------------------------------
+    async function submitJobToAPI(jobData) {
+        const memberCookie = window?.$memberstackDom?.getMemberCookie?.();
+        const formData = new FormData();
+
+        // Add all job data to FormData
+        Object.entries(jobData).forEach(([key, value]) => {
+            if (value === undefined) {
+                return;
+            }
+
+            if (value instanceof Blob) {
+                formData.append(key, value);
+            } else if (Array.isArray(value) || typeof value === 'object') {
+                formData.append(key, JSON.stringify(value));
+            } else {
+                formData.append(key, value);
+            }
+        });
+
+        // Prepare headers
+        const headers = {};
+        if (memberCookie) {
+            headers['Authorization'] = `Bearer ${memberCookie}`;
+        }
+
+        // Create abort controller for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers,
+                body: formData,
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const message = `Submission failed: ${response.status} ${response.statusText}`;
+                throw new Error(message);
+            }
+
+            const data = await response.json();
+            return data;
+
+        } catch (error) {
+            clearTimeout(timeoutId);
+            
+            if (error.name === 'AbortError') {
+                throw new Error('Request timed out. Please try again.');
+            }
+            throw error;
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // CHECK JOB STATUS (POLLING)
+    // -----------------------------------------------------------------
+    async function checkJobStatusOnce(user_id, jobId) {
+        const memberCookie = window?.$memberstackDom?.getMemberCookie?.();
+        
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        
+        if (memberCookie) {
+            headers['Authorization'] = `Bearer ${memberCookie}`;
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout per request
+
+        try {
+            const response = await fetch(STATUS_URL, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    user_id: user_id,
+                    item_name: jobId
+                }),
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`Status check failed: ${response.status} ${response.statusText}`);
+            }
+
+            return await response.json();
+
+        } catch (error) {
+            clearTimeout(timeoutId);
+            
+            if (error.name === 'AbortError') {
+                console.warn('[Polling] Status check timed out');
+                return null;
+            }
+            throw error;
+        }
+    }
+
+    function checkJobStatus(user_id, jobId) {
+        pollAttempts = 0;
+
+        console.log('[checkJobStatus] Starting polling for job:', jobId);
+        console.log('[checkJobStatus] Polling URL:', STATUS_URL);
+
+        pollingIntervalId = setInterval(async function () {
+            pollAttempts++;
+            console.log(`[Polling] Attempt ${pollAttempts}/${MAX_POLL_ATTEMPTS}`);
+            
+            try {
+                const data = await checkJobStatusOnce(user_id, jobId);
+                
+                if (!data) {
+                    console.warn('[Polling] No data received, will retry...');
+                    
+                    if (pollAttempts >= MAX_POLL_ATTEMPTS) {
+                        clearInterval(pollingIntervalId);
+                        pollingIntervalId = null;
+                        displayError("Unable to check job status. Please contact support.");
+                    }
+                    return;
+                }
+                
+                console.log('[Polling] Status response:', data);
+                
+                // Check if job is completed
+                if (data && data.item_status && 
+                    (data.item_status === "ITEM_PUBLISHED_POLL" || 
+                     data.item_status === "ITEM_PUBLISHED") && 
+                    data.item_link && 
+                    data.item_link !== "testeLink") {
+                    
+                    console.log('[Polling] Job completed! Redirecting...');
+                    clearInterval(pollingIntervalId);
+                    pollingIntervalId = null;
+
+                    const document_url = data.item_link;
+                    // Adjust this URL to match your results page
+                    let destinationURL = window.location.origin + "/models/editor?id=" + document_url;
+                    console.log('[Polling] Redirecting to:', destinationURL);
+                    
+                    // Show success message before redirect
+                    showSuccessToast('Your legislation dossier is ready!');
+                    
+                    // Small delay to show success message
+                    setTimeout(() => {
+                        window.location.assign(destinationURL);
+                    }, 1000);
+
+                } else if (pollAttempts >= MAX_POLL_ATTEMPTS) {
+                    console.error('[Polling] Max attempts reached');
+                    clearInterval(pollingIntervalId);
+                    pollingIntervalId = null;
+                    displayError("Job took too long. Please try again or contact support.");
+                }
+                
+            } catch (error) {
+                console.error('[Polling] Status check error:', error);
+                
+                // Don't stop polling on transient errors, but log them
+                if (pollAttempts >= MAX_POLL_ATTEMPTS) {
+                    clearInterval(pollingIntervalId);
+                    pollingIntervalId = null;
+                    displayError("Unable to check job status. Please contact support.");
+                }
+            }
+        }, POLL_INTERVAL);
+    }
+
+    // -----------------------------------------------------------------
+    // UI HELPER FUNCTIONS
+    // -----------------------------------------------------------------
+    function displayError(message) {
+        hideLoading();
+        showToast(message, 'error');
+    }
+
+    function showSuccessToast(message) {
+        showToast(message, 'success');
+    }
+
+    function showToast(message, type = 'info') {
+        const toastEl = document.getElementById("toast");
+        if (toastEl) {
+            toastEl.textContent = message;
+            toastEl.className = "toast";
+            if (type === 'success') {
+                toastEl.classList.add("toast-success");
+            } else if (type === 'error') {
+                toastEl.classList.add("toast-error");
+            }
+            toastEl.classList.add("show");
+            setTimeout(() => {
+                toastEl.classList.remove("show");
+            }, type === 'error' ? 5000 : 3000);
+        }
+    }
+
+    function hideLoading() {
+        const loadingContainer = document.getElementById('lottie-loading-container');
+        if (loadingContainer) {
+            loadingContainer.style.display = 'none';
+        }
+        showForm();
+    }
+
+    function hideForm() {
+        const title = document.querySelector('.legislation-main-title');
+        const form = document.getElementById('legislationForm1');
+        if (form) {
+            form.style.display = 'none';
+        }
+        if (title) {
+            title.style.display = 'none';
+        }
+    }
+
+    function showLoading() {
+        console.log('[showLoading] Displaying loading overlay');
+        hideForm();
+        
+        // Create or show Lottie loading animation
+        let loadingContainer = document.getElementById('lottie-loading-container');
+        
+        if (!loadingContainer) {
+            // Create loading container
+            loadingContainer = document.createElement('div');
+            loadingContainer.id = 'lottie-loading-container';
+            loadingContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.95);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+            `;
+            
+            // Create Lottie animation container
+            const lottieDiv = document.createElement('div');
+            lottieDiv.id = 'lottie-animation';
+            lottieDiv.style.cssText = 'width: 300px; height: 300px;';
+            
+            // Create loading text
+            const loadingText = document.createElement('p');
+            loadingText.style.cssText = `
+                margin-top: 20px;
+                font-size: 18px;
+                color: #333;
+                font-weight: 500;
+            `;
+            loadingText.textContent = 'Generating your legislation dossier...';
+            
+            loadingContainer.appendChild(lottieDiv);
+            loadingContainer.appendChild(loadingText);
+            document.body.appendChild(loadingContainer);
+            
+            // Function to initialize Lottie animation
+            function initializeLottie() {
+                try {
+                    if (typeof lottie !== 'undefined' && lottie.loadAnimation) {
+                        lottie.loadAnimation({
+                            container: lottieDiv,
+                            renderer: 'svg',
+                            loop: true,
+                            autoplay: true,
+                            path: 'https://cdn.prod.website-files.com/6909fb37ec7bf540bb37dd4b/6909fb37ec7bf540bb37dfbd_Comp%201%20(1).json'
+                        });
+                    } else {
+                        console.warn('Lottie library not fully loaded, retrying...');
+                        setTimeout(initializeLottie, 100);
+                    }
+                } catch (error) {
+                    console.error('Error initializing Lottie:', error);
+                }
+            }
+            
+            // Load Lottie library if not already loaded
+            if (typeof lottie === 'undefined' || !lottie.loadAnimation) {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js';
+                script.onload = function() {
+                    initializeLottie();
+                };
+                script.onerror = function() {
+                    console.error('Failed to load Lottie library');
+                };
+                document.head.appendChild(script);
+            } else {
+                initializeLottie();
+            }
+        } else {
+            loadingContainer.style.display = 'flex';
+        }
+    }
+
+    function showForm() {
+        const title = document.querySelector('.legislation-main-title');
+        const form = document.getElementById('legislationForm1');
+        if (form) {
+            form.style.display = 'flex';
+        }
+        if (title) {
+            title.style.display = 'block';
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // FORM SUBMISSION HANDLER FOR LEGISLATION FORM 1
+    // -----------------------------------------------------------------
+    async function triggerSubmit(event) {
+        event.preventDefault();
+        showLoading();
+
+        const form = event.target;
+        let formData = new FormData(form);
+        console.log('Legislation Form 1 submitted:', formData);
+        
+        // Get all form values
+        const level = formData.get('level');
+        const state = formData.get('state');
+        const subject = formData.get('subject');
+        const issue = formData.get('issue');
+        
+        // Get selected checkboxes
+        const selectedOptions = Array.from(form.querySelectorAll('input[name="options"]:checked'))
+            .map(checkbox => checkbox.value);
+
+        // Prepare final job data with individual key-value pairs
+        const finalJobData = {
+            user_id: userId,
+            session_id: sessionId,
+            process: DEFAULT_PROCESS,
+            level: level || "",
+            state: state || "",
+            subject: subject || "",
+            issue: issue || "",
+            analysis: selectedOptions.length > 0 ? selectedOptions : [],
+            user_prompt: "",
+            blueprint: "legislationdossier",
+            sector: "Agriculture",
+            company: "Agriculture Corp"
+        };
+        
+        console.log("Prepared finalJobData:", finalJobData);
+
+        // Submit job to API using fetch
+        try {
+            const data = await submitJobToAPI(finalJobData);
+            
+            console.log('Parsed response:', data);
+
+            // Check for item_name (job ID) in response
+            if (data && data.item_name) {
+                console.log('Job submitted. ID:', data.item_name);
+                
+                // Start polling for job status
+                checkJobStatus(userId, data.item_name);
+            } else {
+                console.error('Invalid API response format - no item_name');
+                displayError('Failed to submit. Please try again.');
+            }
+
+        } catch (error) {
+            console.error('API Error:', error);
+            
+            // Handle specific error messages
+            if (error.message.includes('422')) {
+                displayError('Invalid input. Please check your entries.');
+            } else if (error.message.includes('423')) {
+                displayError('Invalid product. Please try again.');
+            } else if (error.message.includes('400')) {
+                displayError('Invalid request. Please check your entries.');
+            } else if (error.message.includes('402')) {
+                displayError('Limit reached. Please upgrade your plan.');
+            } else if (error.message.includes('timed out')) {
+                displayError('Request timed out. Please try again.');
+            } else {
+                displayError('An error occurred. Please try again.');
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // ATTACH EVENT LISTENER TO LEGISLATION FORM 1
+    // -----------------------------------------------------------------
+    // Wait for DOM to be ready
+    setTimeout(function() {
+        const form = document.getElementById('legislationForm1');
+        
+        if (form) {
+            console.log('Legislation Form 1 found, attaching submit handler');
+            
+            // Remove existing event listener if any (to prevent duplicates)
+            form.removeEventListener('submit', triggerSubmit);
+            
+            // Override the form's default submit behavior
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                triggerSubmit(e);
+            }, true);
+            
+            console.log('Custom submit handler attached to legislationForm1');
+        } else {
+            console.error('Form with ID "legislationForm1" not found!');
+        }
+    }, 1000); // Wait 1 second for embedded HTML to load
+
+});
+</script>
+
+</body>
+</html>
