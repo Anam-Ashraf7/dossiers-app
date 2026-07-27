@@ -1,1 +1,1 @@
-{"root":["./src/dashboard.tsx","./src/dossierpage.tsx","./src/main.tsx"],"version":"5.9.3"}
+{"root":["./src/dashboard.tsx","./src/dossierpage.tsx","./src/passwordgate.tsx","./src/main.tsx","./src/vite-env.d.ts"],"version":"5.9.3"}

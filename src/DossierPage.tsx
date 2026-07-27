@@ -3,16 +3,17 @@ import "./dashboard.css";
 
 type Props = {
   title: string;
-  src: string;
+  html: string;
 };
 
 /**
  * Hosts an original dossier (raw Webflow HTML + its own global CSS and vanilla JS)
- * inside an iframe. The iframe is deliberate: these dossiers ship global `*` / `body`
- * selectors and their own scripts, so isolating them keeps them working exactly as
- * they do today without leaking styles into the dashboard.
+ * inside an iframe via `srcDoc`. The HTML is bundled into the app (imported with
+ * `?raw`) rather than served as a standalone file, so it is only rendered after the
+ * password gate — there is no public `/dossiers/*.html` URL to bypass it. The iframe
+ * also isolates the dossier's global styles/scripts from the dashboard.
  */
-export default function DossierPage({ title, src }: Props) {
+export default function DossierPage({ title, html }: Props) {
   return (
     <div className="dossier-page">
       <header className="dossier-bar">
@@ -21,7 +22,7 @@ export default function DossierPage({ title, src }: Props) {
         </Link>
         <span className="dossier-title">{title}</span>
       </header>
-      <iframe className="dossier-frame" src={src} title={title} />
+      <iframe className="dossier-frame" srcDoc={html} title={title} />
     </div>
   );
 }

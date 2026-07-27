@@ -53,28 +53,17 @@ function LegislationIcon() {
 }
 
 function ProfileIcon() {
+  // Material "groups" icon — a clean three-person cluster that reads well at any size.
   return (
     <svg
       className="dash-card-icon"
-      width="92"
-      height="92"
-      viewBox="0 0 92 92"
+      width="88"
+      height="88"
+      viewBox="0 0 24 24"
       fill="currentColor"
       aria-hidden="true"
     >
-      {/* side figures */}
-      <circle cx="20" cy="35" r="8" />
-      <path d="M6 66 c0 -9 6.5 -15 14 -15 c7.5 0 14 6 14 15 Z" />
-      <circle cx="72" cy="35" r="8" />
-      <path d="M58 66 c0 -9 6.5 -15 14 -15 c7.5 0 14 6 14 15 Z" />
-      {/* inner figures */}
-      <circle cx="36" cy="30" r="9" />
-      <path d="M20 68 c0 -11 7 -18 16 -18 c9 0 16 7 16 18 Z" />
-      <circle cx="56" cy="30" r="9" />
-      <path d="M40 68 c0 -11 7 -18 16 -18 c9 0 16 7 16 18 Z" />
-      {/* center figure */}
-      <circle cx="46" cy="24" r="12" />
-      <path d="M25 72 c0 -14 9 -23 21 -23 c12 0 21 9 21 23 Z" />
+      <path d="M12 12.75c1.63 0 3.07.39 4.24.9 1.08.48 1.76 1.56 1.76 2.73V18H6v-1.61c0-1.18.68-2.26 1.76-2.73 1.17-.52 2.61-.91 4.24-.91zM4 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1-.99 0-1.93.21-2.78.58C.48 14.9 0 15.62 0 16.43V18h4.5v-1.61c0-.83.23-1.61.63-2.29zM20 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm4 3.43c0-.81-.48-1.53-1.22-1.85-.85-.37-1.79-.58-2.78-.58-.39 0-.76.04-1.13.1.4.68.63 1.46.63 2.29V18H24v-1.57zM12 6c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3z" />
     </svg>
   );
 }
