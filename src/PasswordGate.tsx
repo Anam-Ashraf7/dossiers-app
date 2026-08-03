@@ -32,8 +32,29 @@ export default function PasswordGate({ children }: { children: ReactNode }) {
   return (
     <div className="gate">
       <form className="gate-card" onSubmit={submit}>
+        <div className="gate-lock" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect
+              x="4.5"
+              y="10.5"
+              width="15"
+              height="10"
+              rx="2.5"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            />
+            <path
+              d="M8 10.5V8a4 4 0 0 1 8 0v2.5"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+            <circle cx="12" cy="15.5" r="1.5" fill="currentColor" />
+          </svg>
+        </div>
         <h1 className="gate-title">Xavier AI — Dossiers</h1>
-        <p className="gate-sub">Enter the password to continue.</p>
+        <p className="gate-sub">Enter the password to continue</p>
+
         <input
           className={"gate-input" + (error ? " gate-input-error" : "")}
           type="password"
@@ -46,7 +67,10 @@ export default function PasswordGate({ children }: { children: ReactNode }) {
             if (error) setError(false);
           }}
         />
-        {error && <div className="gate-error">Incorrect password.</div>}
+        <div className="gate-error" role="alert">
+          {error ? "Incorrect password. Please try again." : ""}
+        </div>
+
         <button className="gate-btn" type="submit">
           Unlock
         </button>
