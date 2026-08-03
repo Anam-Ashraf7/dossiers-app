@@ -538,6 +538,14 @@
             <option value="Peace and Freedom Party">Peace and Freedom Party</option>
           </select>
         </div>
+        <div class="legislation-form-field hidden" id="dossierTypeField">
+          <label class="legislation-input-label" data-num="5">Type</label>
+          <select id="dossierType" name="dossierType" class="legislation-select-input">
+            <option value="">Choose type...</option>
+            <option value="critical">Critical</option>
+            <option value="supportive">Supportive</option>
+          </select>
+        </div>
         <div class="legislation-form-field" id="profileUrlsField">
           <label class="legislation-input-label" data-num="5">Relevant information</label>
           <input type="url" id="linkedin" name="linkedin"
@@ -609,7 +617,9 @@
     function updateProgress() {
       const form = document.getElementById("contactForm");
       const isCandidate = form.interest.value === "candidate";
-      const total = isCandidate ? 5 : 4; // 5 if candidate (includes level/office), 4 otherwise
+      const isRepublican = form.partyAffiliate.value === "Republican Party";
+      // 5 if candidate (includes level/office), 4 otherwise; +1 for the Republican type field
+      const total = (isCandidate ? 5 : 4) + (isRepublican ? 1 : 0);
       let completed = 0;
       if (form.name.value.trim()) completed++;
       if (form.interest.value) completed++;
@@ -617,6 +627,7 @@
         if (form.level.value.trim() || form.officeTitle.value.trim()) completed++;
       }
       if (form.partyAffiliate.value.trim()) completed++;
+      if (isRepublican && form.dossierType.value.trim()) completed++;
       if (form.noInfoAvailable.checked ||
         form.linkedin.value.trim() || form.twitter.value.trim() ||
         form.facebook.value.trim() || form.otherLinks.value.trim() ||
@@ -659,32 +670,43 @@
         officeTitleSelect.appendChild(defaultOption);
       }
     }
+    const REPUBLICAN_PARTY = "Republican Party";
+    function isRepublicanSelected() {
+      return document.getElementById("partyAffiliate").value === REPUBLICAN_PARTY;
+    }
     function updateStepNumbers() {
       const isCandidate = document.getElementById("interest").value === "candidate";
       const candidateFields = document.getElementById("candidateFields");
       const locationFields = document.getElementById("locationFields");
       const partyAffiliateField = document.getElementById("partyAffiliateField");
+      const dossierTypeField = document.getElementById("dossierTypeField");
       const profileUrlsField = document.getElementById("profileUrlsField");
       const levelField = document.getElementById("level");
       const officeTitleField = document.getElementById("officeTitle");
+      const showDossierType = isRepublicanSelected();
+      // name (1), option (2), method (3) are fixed; the rest shift with the optional fields
+      let num = isCandidate ? 5 : 4;
       if (isCandidate) {
         candidateFields.classList.remove("hidden");
-        locationFields.querySelector(".legislation-input-label").setAttribute("data-num", "5");
-        partyAffiliateField.querySelector(".legislation-input-label").setAttribute("data-num", "6");
-        profileUrlsField.querySelector(".legislation-input-label").setAttribute("data-num", "7");
-        levelField.removeAttribute("required");
-        officeTitleField.removeAttribute("required");
       } else {
         candidateFields.classList.add("hidden");
-        locationFields.querySelector(".legislation-input-label").setAttribute("data-num", "4");
-        partyAffiliateField.querySelector(".legislation-input-label").setAttribute("data-num", "5");
-        profileUrlsField.querySelector(".legislation-input-label").setAttribute("data-num", "6");
-        levelField.removeAttribute("required");
-        officeTitleField.removeAttribute("required");
         levelField.value = "";
         officeTitleField.innerHTML = '<option value="">First select a level...</option>';
         officeTitleField.disabled = true;
       }
+      levelField.removeAttribute("required");
+      officeTitleField.removeAttribute("required");
+      locationFields.querySelector(".legislation-input-label").setAttribute("data-num", String(num++));
+      partyAffiliateField.querySelector(".legislation-input-label").setAttribute("data-num", String(num++));
+      if (showDossierType) {
+        dossierTypeField.classList.remove("hidden");
+        dossierTypeField.querySelector(".legislation-input-label").setAttribute("data-num", String(num++));
+      } else {
+        dossierTypeField.classList.add("hidden");
+        document.getElementById("dossierType").value = "";
+      }
+      profileUrlsField.querySelector(".legislation-input-label").setAttribute("data-num", String(num));
+      updateProgress();
     }
     function toggleRelevantInfo() {
       const noInfo = document.getElementById("noInfoAvailable").checked;
@@ -703,6 +725,7 @@
     });
     document.getElementById("noInfoAvailable").addEventListener("change", toggleRelevantInfo);
     document.getElementById("interest").addEventListener("change", updateStepNumbers);
+    document.getElementById("partyAffiliate").addEventListener("change", updateStepNumbers);
     document.getElementById("method").addEventListener("change", function () {
       const deliveryEmailEl = document.getElementById("deliveryEmail");
       if (this.value === "slow") {
@@ -1118,6 +1141,7 @@
         query_level: form.level.value.trim(),
         query_office_title: form.officeTitle.value.trim(),
         query_party_affiliate: form.partyAffiliate.value.trim(),
+        dossier_type: isRepublicanSelected() ? form.dossierType.value.trim() : "",
         selected_profiles: Array.from(selectedProfilesMap.values())
       };
       if (deliveryEmail) {
@@ -1637,6 +1661,7 @@
             const level = formData.get('level');
             const officeTitle = formData.get('officeTitle');
             const partyAffiliate = formData.get('partyAffiliate');
+            const dossierType = isRepublicanSelected() ? formData.get('dossierType') : "";
             const twitter = formData.get('twitter');
             const state = formData.get('state');
             const city = formData.get('city');
@@ -1663,6 +1688,7 @@
                 level: level || "",
                 office_title: officeTitle || "",
                 party_affiliate: partyAffiliate || "",
+                dossier_type: dossierType || "",
                 state: state || "",
                 city: city || "",
                 county: county || "",
