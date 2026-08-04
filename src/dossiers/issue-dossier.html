@@ -1394,9 +1394,10 @@ Webflow.push(function () {
     // -----------------------------------------------------------------
     async function checkJobStatusOnce(user_id, jobId) {
         const memberCookie = window?.$memberstackDom?.getMemberCookie?.();
-        
+
         const headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'x-bypass-token': BYPASS_TOKEN
         };
         
         if (memberCookie) {
