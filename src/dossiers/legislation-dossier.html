@@ -923,6 +923,7 @@ Webflow.push(function () {
     // API CONFIGURATION
     // -----------------------------------------------------------------
     const API_URL = "https://gdi9c82r4j.execute-api.eu-west-1.amazonaws.com/moderate-test";
+    const BYPASS_TOKEN = "jjkSSuUI-LEpuwygx3LzxD4B2RztQkMXME3Ul_BGGO8";
     const STATUS_URL = "https://gdi9c82r4j.execute-api.eu-west-1.amazonaws.com/getitemstatus";
     const POLL_INTERVAL = 5000; // 5 seconds
     const MAX_POLL_ATTEMPTS = 100;
@@ -1003,25 +1004,12 @@ Webflow.push(function () {
     // -----------------------------------------------------------------
     async function submitJobToAPI(jobData) {
         const memberCookie = window?.$memberstackDom?.getMemberCookie?.();
-        const formData = new FormData();
-
-        // Add all job data to FormData
-        Object.entries(jobData).forEach(([key, value]) => {
-            if (value === undefined) {
-                return;
-            }
-
-            if (value instanceof Blob) {
-                formData.append(key, value);
-            } else if (Array.isArray(value) || typeof value === 'object') {
-                formData.append(key, JSON.stringify(value));
-            } else {
-                formData.append(key, value);
-            }
-        });
 
         // Prepare headers
-        const headers = {};
+        const headers = {
+            'Content-Type': 'application/json',
+            'x-bypass-token': BYPASS_TOKEN
+        };
         if (memberCookie) {
             headers['Authorization'] = `Bearer ${memberCookie}`;
         }
@@ -1034,7 +1022,7 @@ Webflow.push(function () {
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers,
-                body: formData,
+                body: JSON.stringify(jobData),
                 signal: controller.signal
             });
 
