@@ -1142,7 +1142,13 @@ Webflow.push(function () {
                     
                     // Small delay to show success message
                     setTimeout(() => {
-                        window.location.assign(destinationURL);
+                        // This form runs inside an iframe, so navigate the top-level
+                        // window; otherwise the editor would load inside the frame.
+                        try {
+                            (window.top || window).location.assign(destinationURL);
+                        } catch (e) {
+                            window.location.assign(destinationURL);
+                        }
                     }, 1000);
 
                 } else if (pollAttempts >= MAX_POLL_ATTEMPTS) {
