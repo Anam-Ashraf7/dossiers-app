@@ -1144,7 +1144,8 @@ Webflow.push(function () {
 
                     const document_url = data.item_link;
                     // Adjust this URL to match your results page
-                    let destinationURL = window.location.origin + "/models/editor?id=" + document_url;
+                    // The editor lives on the Webflow site, not on this app's origin.
+                    let destinationURL = "https://www.xavier.ai/models/editor?id=" + document_url;
                     console.log('[Polling] Redirecting to:', destinationURL);
                     
                     // Show success message before redirect

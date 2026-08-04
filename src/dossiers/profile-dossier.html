@@ -670,6 +670,13 @@
         officeTitleSelect.appendChild(defaultOption);
       }
     }
+    // dossier_type is sent as null when it has no value, not "".
+    // Declared as a function so it is reachable from the later <script> blocks too.
+    function orNull(value) {
+      if (value === null || value === undefined) return null;
+      const trimmed = String(value).trim();
+      return trimmed === "" ? null : trimmed;
+    }
     const REPUBLICAN_PARTY = "Republican Party";
     function isRepublicanSelected() {
       return document.getElementById("partyAffiliate").value === REPUBLICAN_PARTY;
@@ -1141,7 +1148,7 @@
         query_level: form.level.value.trim(),
         query_office_title: form.officeTitle.value.trim(),
         query_party_affiliate: form.partyAffiliate.value.trim(),
-        dossier_type: isRepublicanSelected() ? form.dossierType.value.trim() : "",
+        dossier_type: isRepublicanSelected() ? orNull(form.dossierType.value) : null,
         selected_profiles: Array.from(selectedProfilesMap.values())
       };
       if (deliveryEmail) {
@@ -1456,7 +1463,8 @@
 
                         const document_url = data.item_link;
                         // Adjust this URL to match your results page
-                        let destinationURL = window.location.origin + "/models/editor?id=" + document_url;
+                        // The editor lives on the Webflow site, not on this app's origin.
+                        let destinationURL = "https://www.xavier.ai/models/editor?id=" + document_url;
                         console.log('[Polling] Redirecting to:', destinationURL);
 
                         // Show success message before redirect
@@ -1661,7 +1669,7 @@
             const level = formData.get('level');
             const officeTitle = formData.get('officeTitle');
             const partyAffiliate = formData.get('partyAffiliate');
-            const dossierType = isRepublicanSelected() ? formData.get('dossierType') : "";
+            const dossierType = isRepublicanSelected() ? formData.get('dossierType') : null;
             const twitter = formData.get('twitter');
             const state = formData.get('state');
             const city = formData.get('city');
@@ -1688,7 +1696,7 @@
                 level: level || "",
                 office_title: officeTitle || "",
                 party_affiliate: partyAffiliate || "",
-                dossier_type: dossierType || "",
+                dossier_type: orNull(dossierType),
                 state: state || "",
                 city: city || "",
                 county: county || "",
